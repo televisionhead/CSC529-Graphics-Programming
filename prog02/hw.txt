@@ -1,0 +1,143 @@
+0. You should have prog02 in your Box/your529 folder.
+   View house.html, and you should see a red square house.
+
+   Each step should have a result.  Make sure it works before you go
+   the the next step.  If you don't understand what it should look
+   like, please ask.
+
+
+1. Set the color of the house from inside of the program.
+
+   Add a uniform vec4, color, to the fragment shader.  Set the fragment
+   color to that color.
+
+   In render, get the location of the color variable in the program
+   (right after you get vPosition).
+
+       var colorLoc = gl.getUniformLocation( program, "color" );
+
+   And set it to green (right after you "pass in" vPosition):
+
+       var color = vec4(0.0, 1.0, 0.0, 1.0);
+       gl.uniform4fv( colorLoc, flatten(color) );
+
+   On my Mac I need to hit shift-command-R to reload house.js.
+
+
+2. After vertices, add a second object, a 3D triangle with vertices 
+
+           ( -0.75, -0.75,  0.5 )
+           (  0.75, -0.75,  0.5 )
+           (  0.0,   0.25, -0.5 )
+
+   Call these vertices2.  These will NOT be vec2, right?  What will they be?
+   Where is vertices declared?
+
+   Load a buffer, bufferId2, with these points.  Where is bufferId declared?
+
+   In render, after you display the house, display this triangle, colored
+   red.  Mind your 2s and 3s!!
+
+
+3. Turn on hidden surface removal using
+
+       gl.enable(gl.DEPTH_TEST);
+       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+   at the top of render().  Do you see that the triangle pierces the
+   house, with the point forward from our point of view?  That means
+   that z=-1 is closest to us.  This is opposite to ``world
+   coordinates'', but there is a reason the clip box is flipped in z
+   we will learn later.
+
+
+4. Independently translate the house and triangle.
+
+   Add vec4 variables, translation and translation2, to the top of
+   house.js, both set to (0,0,0,0).  In render(), connect one or the other
+   to a uniform vec4, translation, in the vertex shader.  Add the
+   translation to vPosition when calculating gl_Position.
+
+   Run your program with different values of translation2 to verify that
+   you can move the triangle without moving the house.
+
+
+5. Move the triangle towards us and away from us.
+
+   Add two more buttons with labels "z + 0.1" and "z - 0.1".
+   Clicking the first should add 0.1 to the triangle's z translation.
+   The z translation is translation2[2].
+   Clicking the second should subtract.
+
+
+6. Add a new vertex to the house whereever the user clicks.
+
+   Look at the "click" event listener for the canvas.  See how it
+   calculates clipX and clipY, the clip coordinates of the click.
+   Push this point onto vertices
+
+	vertices.push(vec2(clipX, clipY));
+
+   and reload vertices to its buffer.
+
+
+7. Drag to move the triangle in x and y.
+
+   Add a listener for "mousedown" (instead of "click") to the canvas.
+   Save the event clip coordinates to downX and downY (declared
+   outside the listener) and set a variable mouseIsDown to true.
+   (All variables are just declared as var.)
+
+   On "mouseup", set mouseIsDown to false.
+
+   On "mousemove", if mouseIsDown, then update translation2 by the
+   difference of the clip coordinates and the down coordinates and then
+   set the down coordinates to the clip coordinates.
+
+   Also in "mousemove", set a variable lastMoveWhileUp to !mouseIsDown.
+   "click" should add a point only if lastMoveWhileUp.
+
+
+8. Pass color through the vertex shader.
+
+   Add a uniform variable uColor that duplicates everything regarding
+   the uniform variable color except that uColor is declared in the
+   vertex shader.
+
+   Add
+
+     varying vec4 fColor;
+
+   to both the vertex shader and the fragment shader.  In the vertex
+   shader main, set fColor equal to uColor.  In the fragment shader,
+   set the fragment color to fColor instead of color.  Everything
+   should look the same.
+
+   Change the triangle rendering to set the color of uColor to blue
+   instead of red, but don't change the setting of color.  Verify that
+   the triangle turns blue.
+
+
+9. Make triangle to be rainbow-colored while leaving the house a
+   solid green.
+
+   Create an array, colors2, of color vectors parallel to vertices2: red,
+   green, blue.  Create and load a buffer, bufferId2c, to hold this data.
+
+   Create an vec4 attribute, vColor, in the vertex shader.  When
+   drawing the triangle, attach vColor to colors2 in this buffer, but
+   when drawing the house, just do the following because it does not
+   use vColor:
+
+        gl.disableVertexAttribArray( vColor );
+
+   Create a uniform int, useColor, in the vertex shader.  If useColor
+   is 1, set fColor to uColor (as in 8).  Otherwise, set fColor to vColor.
+
+
+   Finally, set useColor to 1 for the house and 0 for the triangle in
+   render(), using gl.uniform1i(), for example
+
+	gl.uniform1i( useColorLoc, 1 );
+
+

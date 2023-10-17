@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+uniform mat4 model2clip;
+
+varying vec4 fPosition;
+varying vec4 fNormal;
+
+void
+main()
+{
+    fPosition = vPosition;
+    fNormal = vNormal;
+    gl_Position = model2clip * vPosition;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform vec4 lightI;
+uniform vec4 lightP;
+uniform vec4 eyeP;
+
+uniform vec4 color;
+uniform int useNormal;
+uniform vec4 normal;
+uniform int refract;
+
+varying vec4 fPosition;
+varying vec4 fNormal;
+
+uniform sampler2D tex1;
+uniform sampler2D tex2;
+
+uniform mat4 model2picture;
+
+void
+main()
+{
+    if (useNormal == 0) {
+        // gl_FragColor = color;
+        // gl_FragColor = texture2D(tex1, fPosition.xy * vec2(0.5, -0.5) + 0.5);
+        gl_FragColor = texture2D(tex1, fPosition.xy);
+    }
+    else {
+        vec4 n = vec4(0, 0, 0, 0);
+        if (useNormal == 1)
+            n = normalize(normal);
+        else
+            n = normalize(fNormal);
+        
+        vec4 l = normalize(lightP - fPosition);
+        vec4 v = normalize(eyeP - fPosition);
+        
+        vec4 diffuse = lightI * color * max(dot(n, l), 0.0);
+        
+        vec4 r = 2.0 * dot(n, l) * n - l;
+        vec4 specular = vec4(0.0, 0.0, 0.0, 0.0);
+        if (dot(n, l) > 0.0)
+            specular = lightI * pow(max(dot(v, r), 0.0), 10.0);
+        
+        vec4 Ia = vec4(0.1, 0.1, 0.1, 1.0);
+        vec4 ambient = Ia * color;
+
+        gl_FragColor = specular + ambient;
+        
+        // Make the sphere out of air.
+        r = -v;
+
+        // EXERCISE 4
+        // Change the calculation of r to use the mirror rule.
+
+        r = 2.0 * dot(n, v) * n - v;        
+        
+        // EXERCISE 5
+        // If refract==1, calculate r for diamond refraction.
+
+        if(refract == 1) {
+            vec4 uprime = (-1.0 / 2.4) * (v - dot(v, n) * n);
+            float sprime = sqrt(1.0 - dot(uprime, uprime));   
+            r = uprime + -sprime * n;
+        }         
+        
+        vec4 p = fPosition; // p in model coordinates
+
+        // EXERCISE 2B
+        // Calculate pP and rP that are p and r in picture coordinates.
+
+        vec4 pP = model2picture * p;
+        vec4 rP = model2picture * r;
+
+        // Calculate t where pP + s rP hits the plane of the picture.
+
+        float s = -pP.z / rP.z;
+        vec4 t = pP + s * rP;
+        
+        // If it hits the picture, add the product of the colors in tex1
+        // and tex2 to the fragment color.  (Use texture(tex1, t.xy).)
+
+        if(s > 0.0 && t.x > 0.0 && t.x < 1.0 && t.y > 0.0 && t.y < 1.0)
+            gl_FragColor += (texture2D(tex1, t.xy) * texture2D(tex2, t.xy));
+    }
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/PVMat.js"></script>
+<script type="text/javascript" src="../Common/Texture2D.js"></script>
+<script type="text/javascript" src="Sphere.js"></script>
+<script type="text/javascript" src="Picture.js"></script>
+<script type="text/javascript" src="view.js"></script>
+<div>
+zoom 1x <input id="slider" type="range"
+ min="100" max="1000" step="10" value="100" />
+ 10x
+</div>
+
+</head>
+
+<body>
+<button id="Perspective">Perspective</button>
+<button id="RightBack">RightBack</button>
+<button id="FlatSmooth">FlatSmooth</button>
+<button id="RefractReflect">RefractReflect</button>
+<button id="lookAt">Look At</button>
+<button id="ZPlus">z + 0.1</button>
+<button id="ZMinus">z - 0.1</button>
+<button id="VZPlus">vz + 0.1</button>
+<button id="VZMinus">vz - 0.1</button>
+<p>
+<canvas id="gl-canvas" width="960" height="540">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>

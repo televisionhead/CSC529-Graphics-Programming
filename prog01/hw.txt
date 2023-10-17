@@ -1,0 +1,82 @@
+Install Box Drive.  Create a folder named after your first two initial of your first and last name plus 529 or 629.  So for me it would be vimi529 (VIctor MIlenkovic) or vimi629.  Share it with me.  I will 
+
+1. Make sure that the prog01 folder in your CSC529 or CSC629 Box folder syncs to your computer.
+
+2. Install the latest version of Chrome and the Shader Editor extension on your computer:
+
+https://www.google.com/chrome/
+
+https://chrome.google.com/webstore/detail/shader-editor/ggeaidddejpbakgafapihjbgdlbbbpob?hl=en
+
+
+3. Visit prog01/square.html (in your Box course folder) in Chrome on
+   your computer.  Do you see a white square?
+
+
+4. Where is the color of the square determined?  Make a change to turn
+   it yellow and refresh.
+
+
+5. Where is the shape of the square determined?  Change one of its corners.
+
+
+The shader editor needs to interact with a web server.  To start the
+web server in Linux or Mac, open a terminal and cd the folder with
+Common and prog01.  Run:
+
+  python -m SimpleHTTPServer
+
+On Windows, if that doesn't work, try
+
+  python -m http.server
+
+If that doesn't work, install Python.  It should do it if you type
+
+  python
+
+without any arguments.
+
+Make sure to select the option to add python to the path and the
+option to disable the max path length in the installer.
+
+
+To load an html file, start at the URL
+
+  localhost:8000
+
+then navigate to prog01/rotatingSquare3.html or prog01/square.html
+
+
+
+6. Load rotatingSquare3.html.  Look at ChromeTools.pdf.  Do all the
+   same things.
+
+
+7. Close the console and this tab.  Open the console in square.html.
+   If you have problems, you might need to restart the browswer.
+
+   Add a line in square.js just before the call to render():
+
+	console.log("Hello");
+
+   Reload.  Where is the Hello?
+
+
+8. Set a breakpoint on that line and restart.  Single step to make the
+   Hello appear.  Take a screen shot.  Single step until the square
+   appears and take another screen shot.
+
+
+9. Modify the fragment color in the shader editor.  In the console, run
+
+	render()
+
+   so the color changes.
+
+
+10. Move the square over by adding 0.25 to the x-coordinate.  You can't
+    modify vPosition because it is input data (an attribute).  You need to
+    copy it into another variable first.  Call render() again.
+
+    Take a screen shot of the recolored and displaced square and the
+    editor windows.

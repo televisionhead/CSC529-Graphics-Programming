@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+precision mediump float;
+
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+//uniform mat4 model2clip;
+uniform mat4 world2clip;
+uniform mat4 model2world;
+uniform mat4 world2modelT;
+
+varying vec4 fPosition;
+varying vec4 fNormal;
+
+void
+main()
+{
+    fPosition = model2world * vPosition;
+    fNormal = world2modelT * vNormal; // THIS IS WRONG!!  EXERCISE 2
+    gl_Position = world2clip * model2world * vPosition;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform vec4 lightI;
+uniform vec4 lightP;
+uniform vec4 eyeP;
+
+uniform vec4 color;
+uniform int useNormal;
+uniform vec4 normal;
+
+uniform mat4 model2world;
+uniform mat4 world2modelT;
+
+varying vec4 fPosition;
+varying vec4 fNormal;
+
+void
+main()
+{
+    if (useNormal == 0)
+       gl_FragColor = color;
+    else {
+      vec3 n = vec3(0, 0, 0);
+      if (useNormal == 1)
+        n = normalize((world2modelT * normal).xyz); // THIS IS WRONG!! EXERCISE 2
+      else
+        n = normalize(fNormal.xyz);
+
+      // Look at the following and then calculate diffuse.
+      // Use dot(n, l)
+      // Set flatOrRound = 1 at the top of view.js to check.
+      vec3 l = normalize((lightP - fPosition).xyz);
+      vec3 v = normalize((eyeP - fPosition).xyz);
+
+      vec3 diffuse = (lightI * color * max(dot(n, l), 0.0)).xyz;
+
+      // Calculate r and specular
+      vec3 r = normalize(2.0 * dot(n, l) * n - l);
+      vec3 specular = (lightI * pow(max(dot(v, r), 0.0), 100.0)).xyz;
+
+      gl_FragColor = vec4(diffuse + specular, 1.0);
+   }
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/PVMat.js"></script>
+<script type="text/javascript" src="Sphere.js"></script>
+<script type="text/javascript" src="Part.js"></script>
+<script type="text/javascript" src="view.js"></script>
+<div>
+zoom 1x <input id="slider" type="range"
+ min="100" max="1000" step="10" value="100" />
+ 10x
+</div>
+
+</head>
+
+<body>
+<button id="MyButton">Perspective</button>
+<button id="lookAt">Look At</button>
+<button id="ZPlus">z + 0.1</button>
+<button id="ZMinus">z - 0.1</button>
+<button id="VZPlus">vz + 0.1</button>
+<button id="VZMinus">vz - 0.1</button>
+<button id="recordstart">Start Record</button>
+<button id="recordstop">Stop Record</button>
+<button id="play">Play</button>
+<p>
+<canvas id="gl-canvas" width="960" height="540">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>

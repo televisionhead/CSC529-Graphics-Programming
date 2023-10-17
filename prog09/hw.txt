@@ -1,0 +1,22 @@
+1. Set the texture coordinates correctly in Sphere.js.  The mandrill
+   should be upright and looking to the left.  Once you have it right,
+   switch the first image (tex1) to moon_diffuse.jpg.  You should now
+   see a picture of the moon pasted on the sphere.
+
+2. In sphere.html, calculate ux, uy, and uz for the tangent frame from
+   the (interpolated) vectors fNormal and fTangent.  If you click
+   useNormal, you should see a shiny grey sphere.
+
+3. Set kd and ks from tex1 and tex2 using texture coordinate fTCoord.
+   Clicking once once on useNormal should show shaded but smooth moon.
+
+4. Look up the normal_color (encoding of normal as a color) in tex3
+   using fTCoord.  Set n_ts (normal in tangent space) to decoded
+   normal.  The moon should pop!
+
+5. By adding or subtracting dx or dy to tcoord and using this texture
+   coordinate in the height map tex4, set offset.x and offset.y.
+   Clicking NormalHeight twice should now show a bumpy grey sphere.
+   Use the bump slider to make the bumps higher.
+
+

@@ -1,0 +1,46 @@
+EXERCISE 1 (TWO LOCATIONS IN THE FILE!)
+This is not the perspective projection using a and b.  Instead it is
+an orthographic projection.  It takes x to x, y to y, z=-near to z=-1
+and z=-far to z=1.  It is a combination of a translation and a scale
+matrix.  Make sure your view2proj takes (1, 1, -2) to (1, 1, -1) and
+(1, 1, -10) to (1, 1, 1).  Check the printouts to the console.
+
+This transformation is not in the notes.  You already learned how to
+do this (for which transformation?).
+
+Since we are moving the cube to (0, 0, -3), three units away from the
+eye, how does its appearance change?  (Hint: trick question.)
+
+
+EXERCISE 2
+We are moving the eye/camera now, not the object.  Since we are moving
+the eye, which way will ultimately cause the front of the object to
+hit the near plane and how many clicks?  Same question for rear plane?
+
+
+EXERCISE 3
+Similar.  Just remember the theory of relativity!
+
+
+EXERCISE 4
+It should be pretty obvious what "look at" should look like when you
+click it.  If you drag the object to the side or upper left or
+something, you are looking at it along a diagonal.  So when you look
+at it, it is farther away.  Eventually, it will disappear past the far
+plane unless you adjust with the vz+0.1 or vz-0.1 button (which one?).
+
+
+EXERCISE 5
+We all know what zooming looks like.
+
+
+EXERCISE 6
+NOW do the perspective transformation.  Click OrthPers to test it.
+
+
+EXERCISE 7 (TWO LOCATIONS IN THE FILE)
+Until you do this exercise, dragging won't work quite right because you
+are dragging in front of or behind the object so perspective scale is
+wrong.
+
+

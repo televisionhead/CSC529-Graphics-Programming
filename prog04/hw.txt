@@ -1,0 +1,80 @@
+Do 1 and 2 by FRIDAY if you can or you have trouble finishing the
+assignment on time!
+
+0. I will put the solution to PVMat.js into your Common folder after
+   class on Monday.  Please compare it to your own solution.
+
+
+1. In cube.js, add code to load this.vertices into this.vertex_buffer.
+
+   For each face, do the following. Create a buffer and add it to the
+   end of this.element_buffers (push).  Bind it as an element array
+   buffer.  Load the elements (vertices indices) of that face into the
+   buffer.  Look at square.js for an example.
+
+
+2. In render, get the locations of vPosition and color in the shader
+   programs.  Connect this.vertex_buffer to vPosition.
+
+   For each face this.faces[i], set uniform color to this.colors[i],
+   and draw the elements in this.element_buffers[i].  Look at
+   square.js for an example.
+
+   The upper right quarter of the black canvas should now be yellow.
+
+
+3. In view.js, create all the matrices (model2object, etc.) and
+   initialize them to the identity.  Declare global model2clip at the
+   top (before window.onload).  Set it after the declaration of all
+   the matrices (to what?).  Add model2clip as a uniform mat4 in the
+   vertex shader.  Pass model2clip to the shader in render before
+   calling cube.render.
+
+	gl.uniformMatrix4fv(model2clipLoc, false, model2clip.flatten());
+
+   Apply model2clip in the vertex shader using left multiplication.
+
+    gl_Position = model2clip * vPosition;
+
+   No change, I hope.
+
+
+4. model2object translates the center of the model to the origin.
+   Remember to set object2model too.  Test.
+
+
+5. view2proj scales z by -1.  Test.  (Color should change.)
+
+
+6. proj2clip scales x by the reciprocal of the aspect ratio.  Test.
+
+
+7. In window.onkeydown, if the user clicks 'X' (keyCode will never be
+   'x') update object2rotated and rotated2object to correspond to a
+   rotation of 0.1 about the x-axis.  Recalculate model2clip.  Test.
+
+   Do 'Y' and 'Z'.  Test.
+
+   Shift key should mean -0.1.  Test.
+
+
+8. rotated2world is a translation matrix, initially the identity.
+
+   The +z and -z buttons should update rotated2world by a translation
+   matrix for a translation by 0.1 or -0.1 in z.  Make sure to
+   recalculate model2clip when you change rotated2world.  Test.
+
+
+9. Set clip2canvas and canvas2clip correctly (right after proj2clip
+   and clip2proj).
+
+   In mousedown, I have calculated mouseCanvas, the position of the
+   mouse in the canvas frame for you.  Calculate mouseWorld, the
+   position in the world (using canvas2clip, clip2proj, proj2view, and
+   view2world).  Set downWorld to mouseWorld.
+
+   In mousemove, calculate mouseWorld.  Create a translation matrix
+   using mouseWorld and downWorld (it is the translation matrix that
+   would take downWorld to mouseWorld) and use it to update
+   rotated2world (and model2clip).  Then set downWorld to mouseWorld.
+   Test.

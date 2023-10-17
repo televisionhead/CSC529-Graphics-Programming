@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+precision mediump float;
+
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+uniform mat4 model2world;
+uniform mat4 world2clip;
+uniform mat4 world2clipL;
+
+varying vec4 fPosition;
+varying vec4 fNormal;
+
+varying vec2 depthTexCoords;
+varying float depth;
+
+void
+main()
+{
+  // hello
+  // EXERCISE 9
+  // Calculate positionL, the position of this vertex
+  // in the light's clip box.
+  // Homogenize and put the coordinates in the range 0 to 1.
+
+  vec4 positionL = world2clipL * (model2world * vPosition);
+
+  positionL = positionL / positionL.w;
+  positionL = (positionL * 0.5) + 0.5;
+
+  depthTexCoords = positionL.xy;
+  depth = positionL.z;
+
+  fPosition = model2world * vPosition;
+  fNormal = normalize(model2world * vNormal);
+  gl_Position = world2clip * (model2world * vPosition);
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform vec4 lightI;
+uniform vec4 lightP;
+uniform vec4 eyeP;
+
+uniform vec4 color;
+uniform int useNormal;
+uniform vec4 normal;
+uniform mat4 model2world;
+
+varying vec4 fPosition;
+varying vec4 fNormal;
+
+// this is a tiny value to avoid self-shadowing
+const float DEPTH_EPSILON = 0.1;
+
+uniform sampler2D depthTex;
+
+varying vec2 depthTexCoords;
+varying float depth;
+
+void
+main()
+{
+
+  float shadow = 1.0;
+
+  // EXERCISE 10
+  // Use depthTex, depthTexCoords, and depth to determine if shadow
+  // should be set to 0.0, meaning yes, it's in shadow.
+
+    if((texture2D(depthTex, depthTexCoords).z + DEPTH_EPSILON) < depth)
+      shadow = 0.0;
+
+    if (useNormal == 0)
+       gl_FragColor = color;
+    else {
+      vec3 n = vec3(0, 0, 0);
+      if (useNormal == 1)
+        n = normalize((model2world * normal).xyz);
+      else
+        n = normalize(fNormal.xyz);
+
+      // Look at the following and then calculate diffuse.
+      // Use dot(n, l)
+      // Set flatOrRound = 1 at the top of view.js to check.
+      vec3 l = normalize((lightP - fPosition).xyz);
+      vec3 v = normalize((eyeP - fPosition).xyz);
+
+      vec3 diffuse = (lightI * color * max(dot(n, l), 0.0)).xyz;
+
+      // Calculate r and specular
+      vec3 r = normalize(2.0 * dot(n, l) * n - l);
+      vec3 specular = (lightI * pow(max(dot(v, r), 0.0), 100.0)).xyz;
+      vec3 ambient = 0.5 * color.xyz;
+
+      gl_FragColor = vec4(shadow * (diffuse + specular) + ambient, 1.0);
+      // gl_FragColor = texture2D(depthTex, depthTexCoords);
+      gl_FragColor.w = 1.0;
+   }
+}
+</script>
+
+<script id="light.fs" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform vec4 color;
+
+void main() {
+  gl_FragColor = color; // vec4(1, 0, 0, 1);
+}
+
+</script>
+
+<script id="light.vs" type="x-shader/x-vertex">
+precision mediump float;
+
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+uniform mat4 model2world;
+uniform mat4 world2clip;
+
+void main()
+{
+  gl_Position = vNormal;
+  gl_Position = world2clip * (model2world * vPosition);
+}
+
+
+</script>
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/PVMat.js"></script>
+<script type="text/javascript" src="../Common/Texture2D.js"></script>
+<script type="text/javascript" src="Sphere.js"></script>
+<script type="text/javascript" src="view.js"></script>
+<div>
+zoom 1x <input id="slider" type="range"
+ min="100" max="1000" step="10" value="100" />
+ 10x
+</div>
+
+</head>
+
+<body>
+<button id="MyButton">perspective</button>
+<button id="flat">shading</button>
+<button id="lookAt">Look At</button>
+<button id="ZPlus">z + 0.1</button>
+<button id="ZMinus">z - 0.1</button>
+<button id="VZPlus">vz + 0.1</button>
+<button id="VZMinus">vz - 0.1</button>
+<p>
+<canvas id="gl-canvas" width="960" height="540">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+</body>
+</html>
